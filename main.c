@@ -11,9 +11,6 @@ pthread_cond_t  cond2  = PTHREAD_COND_INITIALIZER;
 sem_t sem_scheduler;
 sem_t sem_pr_sor;
 
-struct tenp *tenp_prsor;
-struct tenp *tenp_sch;
-
 int done = 0;
 int tenp_kop = 0;
 
@@ -49,7 +46,6 @@ void *erlojua() {
             //Tenporizadorea baliabidea kontsumitzeko zain geratu
             pthread_cond_wait( &cond1, &mutex1 );
         }
-        //sleep(1);
         done = 0;
         //Hari guztiei seinalea bidali hauek desblokeatzeko
         pthread_cond_broadcast(&cond2);
@@ -73,7 +69,6 @@ void *tenporizadorea_prsor() {
 
         done++;
         kont++;
-        //printf("Kont(Prozesu Sortzailea): %d\n", kont);
         if (kont == PRSOR_FREC){
             printf("(Tenp Prozesu Sortzailea): Sartu naiz. Prozesu sortzaileari seinalea bidaltzen...\n");
             kont = 0;
@@ -500,6 +495,7 @@ int main(int argc, char *argv[]) {
 }
 
 
+//Hau hurrengo zatirako da
 /*
 void *execution(){
     int i;

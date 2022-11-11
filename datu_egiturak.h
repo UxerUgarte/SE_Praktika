@@ -9,12 +9,15 @@
 #ifndef DATU_EGITURAK_H
 #define DATU_EGITURAK_H
 
+//Schedulerraren eta prozesu sortzailearen frekuentziak
 #define SCH_FREC 300000
 #define PRSOR_FREC 1000000
 
+//Planifikazio politika aukeratzeko
 #define FIFO_SCH 0
 #define RR_SCH 1
 
+//Prozesu baten egoerak(Oraingoz bakarrik READY eta EXECUTING erabiltzen dira)
 #define READY 0
 #define EXECUTING 1
 #define BLOCKED 2
@@ -25,33 +28,27 @@ extern pthread_mutex_t mutex1;
 extern pthread_cond_t  cond1;
 extern pthread_cond_t  cond2;
 
-extern sem_t sem_scheduler;
-extern sem_t sem_pr_sor;
+extern sem_t sem_scheduler;         //Schedulerraren semaforoa
+extern sem_t sem_pr_sor;            //Prozesu sortzailearen semaforoa
 
-extern struct tenp *tenp_prsor;
-extern struct tenp *tenp_sch;
+extern int done;                    //Erlokuaren "baliabideak"(zenbat tenporizadoreek okntsumitu duten beraien baliabidea)
+extern int tenp_kop;                //Tenporizadore kopurua
 
-extern int done;
-extern int tenp_kop;
+extern int prozesu_id;              //Prozesuen id-a sortzen duen aldagaia
 
-extern int prozesu_id;
+extern struct node *processQueue;   //Prozesuen ilara zirkularra
 
-extern struct node *processQueue;
+extern struct pcb *prozesu_nulua;   //Prozesu nulua
+extern struct pcb *executing;       //Unean exekutatzen ari den prozesua
 
-extern struct pcb *prozesu_nulua;
-extern struct pcb *executing;
+extern int executed;                //Schedulerraren tenporizadoreari prozesu bat exekutatu den edo jakinarazten dion aldagaia
+extern int lagExecuted;             //Schedulerrari prozesu bat exekutatu den edo jakinarazten dion aldagaia
 
-extern int executed;
-extern int lagExecuted;
+extern int terminated;              //Aldagai hau hurrengo zatirako da oraindik ez da erabiltzen( Exekuzioa hari bakar batean egiteko erabiliko da)
 
-extern int terminated;
+extern float denb;                  //Prozesuaren exekuzio denbora(CPU_TIME)
 
-extern int upper;
-extern int lower;
-
-extern float denb;
-
-extern int sch;
+extern int sch;                     //Zein planifikatzaile nahi duzun erabili. 0 fifo, 1 roundrobin
 
 
 struct pcb
@@ -70,11 +67,6 @@ struct node {
    //struct node *last;
    struct node *previous;
    struct pcb *data;
-};
-
-struct tenp {
-    int kont;
-    sem_t sem;
 };
 
 #endif // datu_egiturak.h
