@@ -30,6 +30,8 @@ float denb = 0.0;
 
 int sch;
 
+int PHYSICAL_MEMORY[PHYSICAL_MEMORY_SIZE];
+
 /**
  * Erlojuaren funtzioa. Tenporizadoreekin sinkronizatzen da.
  */
@@ -116,14 +118,51 @@ void *tenporizadorea_scheduler() {
 /**
  * Prozesu sortzailearen tenporizadoreak seinale bat bidaltzean prozesu berri bat sortu eta prozesuen listan sartuko du.
  */
-void *prozesu_sortzailea(){
+void *loader(){
     
     printf("Prozesu sortzailea aktibatuta.\n");
+
+    FILE *fp;
+    char filename[] = "name.txt";
+    FILE * fp;
+    char * line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    char* ptr;
+    int textLogAddress;
+    int dataLogAddress;
 
     while(1){
 
         //Prozesu sortzailearen tenporizadorearen semaforoari zain geratu
         sem_wait(&sem_pr_sor);
+        fp = fopen(filename, "r");
+        
+        if (fp == NULL)
+            exit(EXIT_FAILURE);
+
+        //Irakurri bi lehenengo lineak eta lortu testu eta dataren helbide logikoak
+        read = getline(&line, &len, fp);
+        ptr = strtok(read, " ");
+        ptr = strtok(read, " ");
+
+        textLogAddress = (int)strtol(ptr, NULL, 16);
+
+        read = getline(&line, &len, fp);
+        ptr = strtok(read, " ");
+        ptr = strtok(read, " ");
+
+        dataLogAddress = (int)strtol(ptr, NULL, 16);
+
+
+        while ((read = getline(&line, &len, fp)) != -1) {
+
+        }
+
+        fclose(fp);
+        //if (line)
+        //    free(line);
+        //exit(EXIT_SUCCESS);
 
         printf("(Prozesu sortzailea): Seinalea jasota. Nire gauzak egiteko prest...\n");
 
@@ -445,10 +484,10 @@ void *scheduler(){
     }
 }
 
-
 int main(int argc, char *argv[]) {
-
-    
+    for(int i = 0; i<PHYSICAL_MEMORY_SIZE; i++){
+        PHYSICAL_MEMORY[i] = malloc(4);
+    }
     pthread_t tenp_pr_sor, tenp_scheduler, erlj, pr_sor, tscheduler;
     //Fifo edo RoundRobin hautatzeko
     if(argc>1 && strcmp(argv[1], "fifo")==0){
@@ -486,7 +525,7 @@ int main(int argc, char *argv[]) {
     tenp_kop++;
 
     //Prozesu sortzailea sortu
-    pthread_create( &pr_sor, NULL, prozesu_sortzailea, NULL);
+    pthread_create( &pr_sor, NULL, loader, NULL);
 
     //Schedulerra sortu
     pthread_create( &tscheduler, NULL, scheduler, NULL);

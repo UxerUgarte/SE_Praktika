@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
 // datu_egiturak.h
 #ifndef DATU_EGITURAK_H
 #define DATU_EGITURAK_H
@@ -22,6 +23,16 @@
 #define EXECUTING 1
 #define BLOCKED 2
 #define TERMINATED 3
+
+//Memoria fisikoaren tamaina
+#define PHYSICAL_MEMORY_SIZE 16777216
+
+//Prozesu bakoitzak okupa dezakeena
+#define DATA_SIZE 4096
+#define TEXT_SIZE 4096
+
+//Kernelaren espazioa
+#define KERNEL_SIZE 4096
 
 
 extern pthread_mutex_t mutex1;
@@ -50,6 +61,13 @@ extern float denb;                  //Prozesuaren exekuzio denbora(CPU_TIME)
 
 extern int sch;                     //Zein planifikatzaile nahi duzun erabili. 0 fifo, 1 roundrobin
 
+extern int PHYSICAL_MEMORY[];
+
+struct mm {
+    int pgb;
+    int code;
+    int data;
+};
 
 struct pcb
 {
@@ -57,6 +75,7 @@ struct pcb
     int STATE;
     float CPU_TIME;
     float beharrezko_denbora;
+    struct mm MEMORY_MANAGEMENT;
     /*
     int PRIORITY;
     int PC;*/
@@ -68,5 +87,7 @@ struct node {
    struct node *previous;
    struct pcb *data;
 };
+
+
 
 #endif // datu_egiturak.h
