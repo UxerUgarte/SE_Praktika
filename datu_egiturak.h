@@ -12,7 +12,7 @@
 
 //Schedulerraren eta prozesu sortzailearen frekuentziak
 #define SCH_FREC 300000
-#define PRSOR_FREC 1000000
+#define CORE_FREC 100000
 
 //Planifikazio politika aukeratzeko
 #define FIFO_SCH 0
@@ -32,7 +32,7 @@
 #define TEXT_SIZE 4096
 
 //Kernelaren espazioa
-#define KERNEL_SIZE 4096
+#define KERNEL_SIZE 1000000
 
 
 extern pthread_mutex_t mutex1;
@@ -53,7 +53,6 @@ extern struct pcb *prozesu_nulua;   //Prozesu nulua
 extern struct pcb *executing;       //Unean exekutatzen ari den prozesua
 
 extern int executed;                //Schedulerraren tenporizadoreari prozesu bat exekutatu den edo jakinarazten dion aldagaia
-extern int lagExecuted;             //Schedulerrari prozesu bat exekutatu den edo jakinarazten dion aldagaia
 
 extern int terminated;              //Aldagai hau hurrengo zatirako da oraindik ez da erabiltzen( Exekuzioa hari bakar batean egiteko erabiliko da)
 
@@ -61,32 +60,48 @@ extern float denb;                  //Prozesuaren exekuzio denbora(CPU_TIME)
 
 extern int sch;                     //Zein planifikatzaile nahi duzun erabili. 0 fifo, 1 roundrobin
 
-extern int PHYSICAL_MEMORY[];
+extern int PHYSICAL_MEMORY[];       //Memoria fisikoaren aldagaia
+extern int num_cores;               //Core kopurua
 
+//Memory management
 struct mm {
     int pgb;
     int code;
-    int data;
+    int datuak;
 };
 
+//Prozesu baten pcb
 struct pcb
 {
     int ID;
     int STATE;
     float CPU_TIME;
     float beharrezko_denbora;
-    struct mm MEMORY_MANAGEMENT;
-    /*
-    int PRIORITY;
-    int PC;*/
+    struct mm *MEMORY_MANAGEMENT;
+    int PC;
+    int registers[15];
+    int IR;
 };
 
 struct node {
    struct node *next;
-   //struct node *last;
    struct node *previous;
    struct pcb *data;
 };
+
+struct core{
+    int ID;
+    int PC;
+    int IR;
+    int sartu;
+    int registers[15];
+    struct pcb *executing;
+    int egoera; //OKupatuta edo ez
+    struct node *unekoNodo;
+    
+};
+
+
 
 
 
